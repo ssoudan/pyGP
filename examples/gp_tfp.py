@@ -6,6 +6,9 @@ import matplotlib.pylab as plt
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 #
 # see https://github.com/tensorflow/probability/blob/master/tensorflow_probability/g3doc/api_docs/python/tfp/distributions/GaussianProcessRegressionModel.md
 #
@@ -31,6 +34,13 @@ def evalGPRSample():
         observation_noise_variance=observation_noise_variance)
 
     samples = gprm.sample(10)
+    print(samples)
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+
+        samples_ = sess.run(samples)
+        print(samples_)
 
 
 def evalMLE():
