@@ -1,0 +1,6 @@
+sklearn
+numpy
+matplotlib
+gpflow
+tensorflow_probability
+tensorflow
