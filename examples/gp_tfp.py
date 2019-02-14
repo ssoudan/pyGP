@@ -15,7 +15,8 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 tfd = tfp.distributions
 psd_kernels = tfp.positive_semidefinite_kernels
 
-def evalGPRSample():
+
+def evalGPRSample():  # type: () -> None
 
     # Generate noisy observations from a known function at some random points.
     observation_noise_variance = .5
@@ -43,7 +44,7 @@ def evalGPRSample():
         print(samples_)
 
 
-def evalMLE():
+def evalMLE():  # type: () -> None
     # Suppose we have some data from a known function. Note the index points in
     # general have shape `[b1, ..., bB, f1, ..., fF]` (here we assume `F == 1`),
     # so we need to explicitly consume the feature dimensions (just the last one
@@ -179,18 +180,24 @@ def evalHMC():
     samples = gprm.sample()
 
     with tf.Session() as sess:
-      kernel_results_, samples_ = sess.run([kernel_results, samples])
+        kernel_results_, samples_ = sess.run([kernel_results, samples])
 
-      print("Acceptance rate: {}".format(
-          np.mean(kernel_results_.inner_results.is_accepted)))
+        print("Acceptance rate: {}".format(
+            np.mean(kernel_results_.inner_results.is_accepted)))
 
-      # Plot posterior samples and their mean, target function, and observations.
-      plt.figure()
-      plt.plot(np.stack([index_points[:, 0]]*num_results).T,
+        # Plot posterior samples and their mean, target function, and observations.
+        plt.figure()
+        plt.plot(np.stack([index_points[:, 0]]*num_results).T,
                samples_.T,
                c='r',
                alpha=.01)
-      plt.plot(index_points[:, 0], np.mean(samples_, axis=0), c='k')
-      plt.plot(index_points[:, 0], f(index_points))
-      plt.scatter(observation_index_points[:, 0], observations)
-      plt.show()
+        plt.plot(index_points[:, 0], np.mean(samples_, axis=0), c='k')
+        plt.plot(index_points[:, 0], f(index_points))
+        plt.scatter(observation_index_points[:, 0], observations)
+        plt.show()
+
+
+if __name__ == '__main__':
+    evalGPRSample()
+    evalHMC()
+    evalMLE()
