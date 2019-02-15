@@ -3,4 +3,4 @@ numpy
 matplotlib
 gpflow
 tensorflow_probability
-tensorflow
+tensorflow>=1.12.0
