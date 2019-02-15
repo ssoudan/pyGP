@@ -82,7 +82,8 @@ def evalMCMC(X, Y):
                              logprobs=False)
     return samples, m
 
-def eval():
+
+if __name__ == '__main__':
     X, Y, x, f = data.make_data()
     Y = np.atleast_2d(Y).T
 
@@ -99,12 +100,12 @@ def eval():
     print(m2.as_pandas_table())
     m2.clear()
 
-    samples, m3 = evalMCMC(X, Y)
+    traces, m3 = evalMCMC(X, Y)
     plot(X, Y, x, m3, 'MCMC-fitted model', f)
     print(m3.as_pandas_table())
 
     plt.figure(figsize=(8, 4))
-    for i, col in samples.iteritems():
+    for i, col in traces.iteritems():
         plt.plot(col, label=col.name)
     plt.legend(loc=0)
     plt.xlabel('HMC iteration')
@@ -114,18 +115,18 @@ def eval():
 
     _, axs = plt.subplots(1, 3, figsize=(12, 4))
 
-    axs[0].plot(samples['GPR/likelihood/variance'],
-                samples['GPR/kern/variance'], 'k.', alpha=0.15)
+    axs[0].plot(traces['GPR/likelihood/variance'],
+                traces['GPR/kern/variance'], 'k.', alpha=0.15)
     axs[0].set_xlabel('noise_variance')
     axs[0].set_ylabel('signal_variance')
 
-    axs[1].plot(samples['GPR/likelihood/variance'],
-                samples['GPR/kern/lengthscales'], 'k.', alpha=0.15)
+    axs[1].plot(traces['GPR/likelihood/variance'],
+                traces['GPR/kern/lengthscales'], 'k.', alpha=0.15)
     axs[1].set_xlabel('noise_variance')
     axs[1].set_ylabel('lengthscale')
 
-    axs[2].plot(samples['GPR/kern/lengthscales'],
-                samples['GPR/kern/variance'], 'k.', alpha=0.1)
+    axs[2].plot(traces['GPR/kern/lengthscales'],
+                traces['GPR/kern/variance'], 'k.', alpha=0.1)
     axs[2].set_xlabel('lengthscale')
     axs[2].set_ylabel('signal_variance')
     plt.title('HMC (joint) distribution')
@@ -133,7 +134,7 @@ def eval():
 
     # plot the function posterior
     plt.figure(figsize=(12, 6))
-    for i, s in samples.iloc[::20].iterrows():
+    for i, s in traces.iloc[::20].iterrows():
         f = m3.predict_f_samples(x, 1, initialize=False, feed_dict=m3.sample_feed_dict(s))
         plt.plot(x, f[0, :, :], 'C0', lw=2, alpha=0.1)
 
@@ -144,6 +145,3 @@ def eval():
     plt.show()
     m3.clear()
 
-
-if __name__ == '__main__':
-    eval()
