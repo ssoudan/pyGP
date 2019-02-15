@@ -9,6 +9,8 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+import examples.data as data
+
 #
 # see https://github.com/tensorflow/probability/blob/master/tensorflow_probability/g3doc/api_docs/python/tfp/distributions/GaussianProcessRegressionModel.md
 #
@@ -44,15 +46,7 @@ def evalGPRSample():  # type: () -> None
         print(samples_)
 
 
-def evalMLE():  # type: () -> None
-    # Suppose we have some data from a known function. Note the index points in
-    # general have shape `[b1, ..., bB, f1, ..., fF]` (here we assume `F == 1`),
-    # so we need to explicitly consume the feature dimensions (just the last one
-    # here).
-    f = lambda x: np.sin(10 * x[..., 0]) * np.exp(-x[..., 0] ** 2)
-
-    observation_index_points = np.random.uniform(-1., 1., 50)[..., np.newaxis]
-    observations = f(observation_index_points) + np.random.normal(0., .05, 50)
+def evalMLE(X, Y, x, f = None):  # type: (Any, Any, Any, Any) -> None
 
     # Define a kernel with trainable parameters. Note we transform the trainable
     # variables to apply a positivity constraint.
@@ -66,21 +60,20 @@ def evalMLE():  # type: () -> None
     # We'll use an unconditioned GP to train the kernel parameters.
     gp = tfd.GaussianProcess(
         kernel=kernel,
-        index_points=observation_index_points,
+        index_points=X,
         observation_noise_variance=observation_noise_variance)
-    neg_log_likelihood = -gp.log_prob(observations)
+    neg_log_likelihood = -gp.log_prob(Y)
 
     optimizer = tf.train.AdamOptimizer(learning_rate=.05, beta1=.5, beta2=.99)
     optimize = optimizer.minimize(neg_log_likelihood)
 
     # We can construct the posterior at a new set of `index_points` using the same
     # kernel (with the same parameters, which we'll optimize below).
-    index_points = np.linspace(-1., 1., 100)[..., np.newaxis]
     gprm = tfd.GaussianProcessRegressionModel(
         kernel=kernel,
-        index_points=index_points,
-        observation_index_points=observation_index_points,
-        observations=observations,
+        index_points=x,
+        observation_index_points=X,
+        observations=Y,
         observation_noise_variance=observation_noise_variance)
 
     samples = gprm.sample(10)
@@ -99,17 +92,15 @@ def evalMLE():  # type: () -> None
         print("Final NLL = {}".format(neg_log_likelihood_))
         samples_ = sess.run(samples)
 
-        plt.scatter(np.squeeze(observation_index_points), observations)
-        plt.plot(np.stack([index_points[:, 0]] * 10).T, samples_.T, c='r', alpha=.2)
+        plt.scatter(np.squeeze(X), Y)
+        plt.plot(np.stack([x[:, 0]] * 10).T, samples_.T, c='r', alpha=.2)
+        if f is not None:
+            plt.plot(x[:, 0], f(x))
+        plt.title("MLE")
         plt.show()
 
 
-def evalHMC():
-    index_points = np.linspace(-1., 1., 200)[..., np.newaxis]
-
-    f = lambda x: np.sin(10*x[..., 0]) * np.exp(-x[..., 0]**2)
-    observation_index_points = np.random.uniform(-1., 1., 25)[..., np.newaxis]
-    observations = np.random.normal(f(observation_index_points), .05)
+def evalHMC(X, Y, x, f = None):  # type: (Any, Any, Any, Any) -> None
 
     def joint_log_prob(
         index_points, observations, amplitude, length_scale, noise_variance):
@@ -147,7 +138,7 @@ def evalHMC():
 
     def unnormalized_log_posterior(amplitude, length_scale, noise_variance):
       return joint_log_prob(
-          observation_index_points, observations, amplitude, length_scale,
+          X, Y, amplitude, length_scale,
           noise_variance)
 
     num_results = 200
@@ -172,9 +163,9 @@ def evalHMC():
     gprm = tfd.GaussianProcessRegressionModel(
         # Batch of `num_results` kernels parameterized by the MCMC samples.
         kernel=psd_kernels.ExponentiatedQuadratic(amplitudes, length_scales),
-        index_points=index_points,
-        observation_index_points=observation_index_points,
-        observations=observations,
+        index_points=x,
+        observation_index_points=X,
+        observations=Y,
         # We reshape this to align batch dimensions.
         observation_noise_variance=observation_noise_variances[..., np.newaxis])
     samples = gprm.sample()
@@ -187,17 +178,22 @@ def evalHMC():
 
         # Plot posterior samples and their mean, target function, and observations.
         plt.figure()
-        plt.plot(np.stack([index_points[:, 0]]*num_results).T,
-               samples_.T,
-               c='r',
-               alpha=.01)
-        plt.plot(index_points[:, 0], np.mean(samples_, axis=0), c='k')
-        plt.plot(index_points[:, 0], f(index_points))
-        plt.scatter(observation_index_points[:, 0], observations)
+        plt.plot(np.stack([x[:, 0]] * num_results).T,
+                 samples_.T,
+                 c='r',
+                 alpha=.01)
+        plt.plot(x[:, 0], np.mean(samples_, axis=0), c='k')
+        if f is not None:
+            plt.plot(x[:, 0], f(x))
+        plt.scatter(X[:, 0], Y)
+        plt.title("HMC")
         plt.show()
 
 
 if __name__ == '__main__':
     evalGPRSample()
-    evalHMC()
-    evalMLE()
+
+    X, Y, x, f = data.make_data()
+
+    evalHMC(X, Y, x, f)
+    evalMLE(X, Y, x, f)
