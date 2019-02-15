@@ -195,5 +195,6 @@ if __name__ == '__main__':
 
     X, Y, x, f = data.make_data()
 
-    evalHMC(X, Y, x, f)
     evalMLE(X, Y, x, f)
+    evalHMC(X, Y, x, f)
+
