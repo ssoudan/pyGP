@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-import examples.data as data
+from .data.gen import make_data
 import gp.gp_tfp
 
 #
@@ -46,15 +46,16 @@ def evalGPRSample():  # type: () -> None
         print(samples_)
 
 
-if __name__ == '__main__':
+def run(output="output/"):
     evalGPRSample()
 
-    X, Y, x, f = data.make_data()
+    X, Y, x, f = make_data()
 
     _, y = gp.gp_tfp.evalMLE(X, Y, x)
 
-    gp.gp_tfp.plot(X, Y, x, y, f, title="MLE")
+    gp.gp_tfp.plot(X, Y, x, y, f, title="MLE", output=os.path.join(output, "tfp_mle.png"))
 
     _, y = gp.gp_tfp.evalHMC(X, Y, x)
-    gp.gp_tfp.plot(X, Y, x, y, f, title="HMC")
+    gp.gp_tfp.plot(X, Y, x, y, f, title="HMC", output=os.path.join(output, "tfp_hmc.png"))
+
 

@@ -11,7 +11,7 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
-import examples.data as data
+from .data.gen import make_data
 import gp.gp_gpflow
 
 
@@ -23,25 +23,26 @@ def evalHandcrafted(X, Y):
     return m
 
 
-if __name__ == '__main__':
-    X, Y, x, f = data.make_data()
+def run(output="output/"):
+    X, Y, x, f = make_data()
     Y = np.atleast_2d(Y).T
 
     plt.plot(X, Y, 'kx', mew=2)
+    plt.savefig(os.path.join(output, "gpflow_input_data.png"))
     plt.show()
 
     m1 = evalHandcrafted(X, Y)
-    gp.gp_gpflow.plot(X, Y, x, m1, 'handcrafted GP model', f)
+    gp.gp_gpflow.plot(X, Y, x, m1, 'handcrafted GP model', f, output=os.path.join(output, "gpflow_handcrafted_model.png"))
     print(m1.as_pandas_table())
     m1.clear()
 
     _, m2 = gp.gp_gpflow.evalMLE(X, Y)
-    gp.gp_gpflow.plot(X, Y, x, m2, 'MLE-fitted model', f)
+    gp.gp_gpflow.plot(X, Y, x, m2, 'MLE-fitted model', f, output=os.path.join(output, "gpflow_mle.png"))
     print(m2.as_pandas_table())
     m2.clear()
 
     traces, m3 = gp.gp_gpflow.evalMCMC(X, Y)
-    gp.gp_gpflow.plot(X, Y, x, m3, 'MCMC-fitted model', f)
+    gp.gp_gpflow.plot(X, Y, x, m3, 'MCMC-fitted model', f, output=os.path.join(output, "gpflow_mcmc.png"))
     print(m3.as_pandas_table())
 
     plt.figure(figsize=(8, 4))
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     plt.xlabel('HMC iteration')
     plt.ylabel('parameter value')
     plt.title('HMC traces')
+    plt.savefig(os.path.join(output, "gpflow_mcmc_traces.png"))
     plt.show()
 
     _, axs = plt.subplots(1, 3, figsize=(12, 4))
@@ -70,6 +72,7 @@ if __name__ == '__main__':
     axs[2].set_xlabel('lengthscale')
     axs[2].set_ylabel('signal_variance')
     plt.title('HMC (joint) distribution')
+    plt.savefig(os.path.join(output, "gpflow_mcmc_joint_distribution.png"))
     plt.show()
 
     # plot the function posterior
@@ -82,6 +85,6 @@ if __name__ == '__main__':
     _ = plt.xlim(x.min(), x.max())
     # _ = plt.ylim(0, 6)
     plt.title('Posterior samples - MCMC')
+    plt.savefig(os.path.join(output, "gpflow_mcmc_posterior_samples.png"))
     plt.show()
     m3.clear()
-

@@ -2,6 +2,7 @@ import numpy as np
 
 np.random.seed(1)
 
+
 def make_data():
     # f = lambda x: x * np.sin(x)
     f = lambda x: np.sin(10 * x[..., 0]) * np.exp(-x[..., 0] ** 2)

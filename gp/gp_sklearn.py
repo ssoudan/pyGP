@@ -9,6 +9,7 @@ from sklearn.gaussian_process.kernels import RBF, WhiteKernel, ConstantKernel as
 # See https://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpr_noisy_targets.html
 #
 
+
 def evalMLENoiseless(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
 
     # Instantiate a Gaussian Process model
@@ -23,6 +24,7 @@ def evalMLENoiseless(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     y, sigma = gp.predict(x, return_std=True)
 
     return y, sigma
+
 
 def evalMLENoisy(X, Y, x, DY = 0):   # type: (Any, Any, Any, int) -> Tuple[Any, Any]
 
@@ -42,7 +44,8 @@ def evalMLENoisy(X, Y, x, DY = 0):   # type: (Any, Any, Any, int) -> Tuple[Any, 
 
     return y, sigma
 
-def plot(X, Y, x, y, sigma, DY=None, f=None):
+
+def plot(X, Y, x, y, sigma, DY=None, f=None, output=None):
     # Plot the function, the prediction and the 95% confidence interval based on
     # the MSE
     plt.figure()
@@ -57,4 +60,6 @@ def plot(X, Y, x, y, sigma, DY=None, f=None):
     plt.xlabel('$x$')
     plt.ylabel('$f(x)$')
     plt.legend(loc='upper left')
+    if output is not None:
+        plt.savefig(output)
     plt.show()

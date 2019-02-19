@@ -143,7 +143,8 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
 
     return x, samples_
 
-def plot(X, Y, x, y, f=None, title=None):
+
+def plot(X, Y, x, y, f=None, title=None, output=None):
     # Plot posterior samples and their mean, target function, and observations.
     num_results = y.shape[0]
 
@@ -158,4 +159,7 @@ def plot(X, Y, x, y, f=None, title=None):
     plt.scatter(X[:, 0], Y)
     if title is not None:
         plt.title(title)
+    if output is not None:
+        plt.savefig(output)
     plt.show()
+

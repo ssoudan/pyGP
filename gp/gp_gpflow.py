@@ -8,6 +8,7 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
+
 def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
     k = gpflow.kernels.Matern52(1, lengthscales=0.3)
     meanf = gpflow.mean_functions.Linear(1.0, 0.0)
@@ -18,6 +19,7 @@ def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
 
     gpflow.train.ScipyOptimizer().minimize(m)
     return None, m
+
 
 def evalMCMC(X, Y):  # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
     k = gpflow.kernels.Matern52(1, lengthscales=0.3)
@@ -38,7 +40,8 @@ def evalMCMC(X, Y):  # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
                              logprobs=False)
     return traces, m
 
-def plot(X, Y, x, m, t, f = None):
+
+def plot(X, Y, x, m, t, f = None, output=None):
 
     # GPflow models have several prediction methods:
     # * m.predict_f returns the mean and variance of the latent function (f) at the points Xnew.
@@ -59,4 +62,6 @@ def plot(X, Y, x, m, t, f = None):
                      color='C0', alpha=0.2)
     plt.xlim(-0.1, 1.1)
     plt.title(t)
+    if output is not None:
+        plt.savefig(output)
     plt.show()
