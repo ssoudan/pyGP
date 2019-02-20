@@ -28,7 +28,8 @@ def run(output="output/"):
     plt.show()
 
     m1 = evalHandcrafted(X, Y)
-    gp.gp_gpflow.plot(X, Y, x, m1, 'handcrafted GP model', f, output=os.path.join(output, "gpflow_handcrafted_model.png"))
+    gp.gp_gpflow.plot(X, Y, x, m1, 'handcrafted GP model', f,
+                      output=os.path.join(output, "gpflow_handcrafted_model.png"))
     print(m1.as_pandas_table())
     m1.clear()
 

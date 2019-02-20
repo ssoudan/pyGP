@@ -26,7 +26,7 @@ def evalMLENoiseless(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     return y, sigma
 
 
-def evalMLENoisy(X, Y, x, DY=0):   # type: (Any, Any, Any, int) -> Tuple[Any, Any]
+def evalMLENoisy(X, Y, x, DY=0.):  # type: (Any, Any, Any, float) -> Tuple[Any, Any]
 
     # Instantiate a Gaussian Process model
     kernel = C(1.0, (1e-4, 1e4)) * RBF(length_scale=100.0, length_scale_bounds=(1e-2, 1e3)) \

@@ -44,7 +44,9 @@ def plot(X, Y, x, m, t, f=None, output=None):
     # GPflow models have several prediction methods:
     # * m.predict_f returns the mean and variance of the latent function (f) at the points Xnew.
     # * m.predict_f_full_cov additionally returns the full covariance matrix of the prediction.
-    # * m.predict_y returns the mean and variance of a new data point (i.e. includes the noise varaince). In the case of non-Gaussian likelihoods, the variance is computed by (numerically) integrating the non-Gaussian likelihood.
+    # * m.predict_y returns the mean and variance of a new data point (i.e. includes the noise varaince).
+    #   In the case of non-Gaussian likelihoods, the variance is computed by (numerically) integrating
+    #   the non-Gaussian likelihood.
     # * m.predict_f_samples returns samples of the latent function
     # * m.predict_density returns the log-density of the points Ynew at Xnew.
 

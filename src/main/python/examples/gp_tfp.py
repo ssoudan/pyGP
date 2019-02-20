@@ -10,7 +10,8 @@ import gp.gp_tfp
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 #
-# see https://github.com/tensorflow/probability/blob/master/tensorflow_probability/g3doc/api_docs/python/tfp/distributions/GaussianProcessRegressionModel.md
+# see https://github.com/tensorflow/probability/blob/master/tensorflow_probability/
+#             g3doc/api_docs/python/tfp/distributions/GaussianProcessRegressionModel.md
 #
 tfd = tfp.distributions
 psd_kernels = tfp.positive_semidefinite_kernels
