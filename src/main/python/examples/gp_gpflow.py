@@ -36,6 +36,17 @@ def run(output="output/"):
     _, m2 = gp.gp_gpflow.evalMLE(X, Y)
     gp.gp_gpflow.plot(X, Y, x, m2, 'MLE-fitted model', f, output=os.path.join(output, "gpflow_mle.png"))
     print(m2.as_pandas_table())
+
+    # plot the function posterior
+    plt.figure(figsize=(12, 6))
+    num_samples = 10
+    ff = m2.predict_f_samples(x, num_samples, initialize=False)
+    plt.plot(np.stack([x[:, 0]] * num_samples).T, ff[:, :, 0].T, 'C0', lw=2, alpha=0.1)
+    plt.plot(X, Y, 'kx', mew=2)
+    _ = plt.xlim(x.min(), x.max())
+    plt.title('Posterior samples - MLE')
+    plt.savefig(os.path.join(output, "gpflow_mle_posterior_samples.png"))
+    plt.show()
     m2.clear()
 
     traces, m3 = gp.gp_gpflow.evalMCMC(X, Y)
