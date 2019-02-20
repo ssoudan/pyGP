@@ -3,34 +3,40 @@ import gpflow
 from matplotlib import pyplot as plt
 import matplotlib
 import os
+import logging
 
 matplotlib.rcParams['figure.figsize'] = (12, 6)
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
+logging.getLogger('gpflow.logdensities').setLevel(logging.ERROR)
+
 
 def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
-    k = gpflow.kernels.Matern52(1, lengthscales=0.3)
-    meanf = gpflow.mean_functions.Linear(1.0, 0.0)
-    m = gpflow.models.GPR(X, Y, k, meanf)
-    m.likelihood.variance = 0.01
+    with gpflow.defer_build():
+        k = gpflow.kernels.Matern52(1, lengthscales=0.3)
+        meanf = gpflow.mean_functions.Linear(1.0, 0.0)
+        m = gpflow.models.GPR(X, Y, k, meanf)
+        m.likelihood.variance = 0.01
 
+    m.compile()
     print(m.as_pandas_table())
 
     gpflow.train.ScipyOptimizer().minimize(m)
     return None, m
 
 
-def evalMCMC(X, Y):  # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
-    k = gpflow.kernels.Matern52(1, lengthscales=0.3)
-    meanf = gpflow.mean_functions.Linear(1.0, 0.0)
-    m = gpflow.models.GPR(X, Y, k, meanf)
-    m.clear()
+def evalMCMC(X, Y):    # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
+    with gpflow.defer_build():
+        k = gpflow.kernels.Matern52(1, lengthscales=0.3)
+        meanf = gpflow.mean_functions.Linear(1.0, 0.0)
+        m = gpflow.models.GPR(X, Y, k, meanf)
 
-    m.kern.lengthscales.prior = gpflow.priors.Gamma(1., 1.)
-    m.kern.variance.prior = gpflow.priors.Gamma(1., 1.)
-    m.likelihood.variance.prior = gpflow.priors.Gamma(1., 1.)
-    m.mean_function.A.prior = gpflow.priors.Gaussian(0., 10.)
-    m.mean_function.b.prior = gpflow.priors.Gaussian(0., 10.)
+        m.kern.lengthscales.prior = gpflow.priors.LogNormal(0., 1.)
+        m.kern.variance.prior = gpflow.priors.LogNormal(0., 1.)
+        m.likelihood.variance.prior = gpflow.priors.LogNormal(0., 1.)
+        m.mean_function.A.prior = gpflow.priors.Gaussian(0., 10.)
+        m.mean_function.b.prior = gpflow.priors.Gaussian(0., 10.)
+
     m.compile()
     print(m.as_pandas_table())
 

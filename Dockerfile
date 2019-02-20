@@ -22,4 +22,4 @@ VOLUME /app/data
 
 ENTRYPOINT [ "python3" ]
 
-CMD [ "run_tfp.py" ]
+CMD [ "run_gpflow.py" ]
