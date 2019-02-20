@@ -76,7 +76,7 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
         rv_noise_variance = tfd.LogNormal(np.float64(0.), np.float64(1))
 
         gp = tfd.GaussianProcess(
-            kernel=psd_kernels.ExponentiatedQuadratic(amplitude, length_scale),
+            kernel=psd_kernels.MaternFiveHalves(amplitude, length_scale),
             index_points=index_points,
             observation_noise_variance=noise_variance)
 
@@ -127,7 +127,7 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     # of index points.
     gprm = tfd.GaussianProcessRegressionModel(
         # Batch of `num_results` kernels parameterized by the MCMC samples.
-        kernel=psd_kernels.ExponentiatedQuadratic(amplitudes, length_scales),
+        kernel=psd_kernels.MaternFiveHalves(amplitudes, length_scales),
         index_points=x,
         observation_index_points=X,
         observations=Y,

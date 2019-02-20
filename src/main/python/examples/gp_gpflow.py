@@ -5,6 +5,7 @@ import matplotlib
 import os
 from .data.gen import make_data
 import gp.gp_gpflow
+import seaborn as sns
 
 
 matplotlib.rcParams['figure.figsize'] = (12, 6)
@@ -63,23 +64,45 @@ def run(output="output/"):
     plt.savefig(os.path.join(output, "gpflow_mcmc_traces.png"))
     plt.show()
 
-    _, axs = plt.subplots(1, 3, figsize=(12, 4))
+    fig = plt.figure(figsize=(12, 4))
+    axs0 = plt.subplot2grid((3, 3), (0, 0), rowspan=2, colspan=1, fig=fig)
 
-    axs[0].plot(traces['GPR/likelihood/variance'],
-                traces['GPR/kern/variance'], 'k.', alpha=0.15)
-    axs[0].set_xlabel('noise_variance')
-    axs[0].set_ylabel('signal_variance')
+    axs0.plot(traces['GPR/likelihood/variance'],
+              traces['GPR/kern/variance'], 'k.', alpha=0.15)
+    axs0.set_xlabel('noise_variance')
+    axs0.set_ylabel('signal_variance')
 
-    axs[1].plot(traces['GPR/likelihood/variance'],
-                traces['GPR/kern/lengthscales'], 'k.', alpha=0.15)
-    axs[1].set_xlabel('noise_variance')
-    axs[1].set_ylabel('lengthscale')
+    axs01 = plt.subplot2grid((3, 3), (2, 0), rowspan=1, colspan=1, fig=fig)
+    sns.distplot(traces['GPR/likelihood/variance'], color='m', ax=axs01)
+    axs01.set_xlim(axs0.get_xlim())
+    plt.setp(axs01, yticks=[])
 
-    axs[2].plot(traces['GPR/kern/lengthscales'],
-                traces['GPR/kern/variance'], 'k.', alpha=0.1)
-    axs[2].set_xlabel('lengthscale')
-    axs[2].set_ylabel('signal_variance')
-    plt.title('HMC (joint) distribution')
+    axs1 = plt.subplot2grid((3, 3), (0, 1), rowspan=2, colspan=1, fig=fig)
+
+    axs1.plot(traces['GPR/kern/lengthscales'],
+              traces['GPR/likelihood/variance'], 'k.', alpha=0.15)
+    axs1.set_xlabel('lengthscale')
+    axs1.set_ylabel('noise_variance')
+
+    axs11 = plt.subplot2grid((3, 3), (2, 1), rowspan=1, colspan=1, fig=fig)
+    sns.distplot(traces['GPR/kern/lengthscales'], color='m', ax=axs11)
+    axs11.set_xlim(axs1.get_xlim())
+    plt.setp(axs11, yticks=[])
+
+    axs2 = plt.subplot2grid((3, 3), (0, 2), rowspan=2, colspan=1, fig=fig)
+
+    axs2.plot(traces['GPR/kern/variance'],
+              traces['GPR/kern/lengthscales'], 'k.', alpha=0.1)
+    axs2.set_xlabel('signal_variance')
+    axs2.set_ylabel('lengthscale')
+
+    axs21 = plt.subplot2grid((3, 3), (2, 2), rowspan=1, colspan=1, fig=fig)
+    sns.distplot(traces['GPR/kern/variance'], color='m', ax=axs21)
+    axs21.set_xlim(axs2.get_xlim())
+    plt.setp(axs21, yticks=[])
+
+    fig.suptitle('HMC (joint) distribution')
+    plt.tight_layout()
     plt.savefig(os.path.join(output, "gpflow_mcmc_joint_distribution.png"))
     plt.show()
 

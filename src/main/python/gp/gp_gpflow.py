@@ -14,7 +14,7 @@ logging.getLogger('gpflow.logdensities').setLevel(logging.ERROR)
 def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
     with gpflow.defer_build():
         k = gpflow.kernels.Matern52(1, lengthscales=0.3)
-        meanf = gpflow.mean_functions.Linear(1.0, 0.0)
+        meanf = gpflow.mean_functions.Zero()
         m = gpflow.models.GPR(X, Y, k, meanf)
         m.likelihood.variance = 0.01
 
@@ -28,20 +28,21 @@ def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
 def evalMCMC(X, Y):    # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
     with gpflow.defer_build():
         k = gpflow.kernels.Matern52(1, lengthscales=0.3)
-        meanf = gpflow.mean_functions.Linear(1.0, 0.0)
+        meanf = gpflow.mean_functions.Zero()
         m = gpflow.models.GPR(X, Y, k, meanf)
+        m.clear()
 
-        m.kern.lengthscales.prior = gpflow.priors.LogNormal(0., 1.)
-        m.kern.variance.prior = gpflow.priors.LogNormal(0., 1.)
-        m.likelihood.variance.prior = gpflow.priors.LogNormal(0., 1.)
-        m.mean_function.A.prior = gpflow.priors.Gaussian(0., 10.)
-        m.mean_function.b.prior = gpflow.priors.Gaussian(0., 10.)
+        m.kern.lengthscales.prior = gpflow.priors.Beta(1., 3.)
+        m.kern.variance.prior = gpflow.priors.Beta(1., 3.)
+        m.likelihood.variance.prior = gpflow.priors.Beta(1., 3.)
+        # m.mean_function.A.prior = gpflow.priors.Gaussian(0., 10.)
+        # m.mean_function.b.prior = gpflow.priors.Gaussian(0., 10.)
 
     m.compile()
     print(m.as_pandas_table())
 
     sampler = gpflow.train.HMC()
-    traces = sampler.sample(m, num_samples=2000, burn=1000, epsilon=0.05, lmin=1, lmax=20, logprobs=False)
+    traces = sampler.sample(m, num_samples=4000, burn=1000, epsilon=0.05, lmin=1, lmax=3, logprobs=False)
     return traces, m
 
 
