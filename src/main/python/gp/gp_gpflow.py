@@ -42,7 +42,7 @@ def evalMCMC(X, Y):    # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
     print(m.as_pandas_table())
 
     sampler = gpflow.train.HMC()
-    traces = sampler.sample(m, num_samples=4000, burn=1000, epsilon=0.05, lmin=1, lmax=3, logprobs=False)
+    traces = sampler.sample(m, num_samples=12000, burn=1000, epsilon=0.05, lmin=1, lmax=3, logprobs=False)
     return traces, m
 
 

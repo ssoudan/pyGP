@@ -2,11 +2,12 @@ import gpflow
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib
+import matplotlib.colors
+import matplotlib.cm
 import os
 from .data.gen import make_data
 import gp.gp_gpflow
 import seaborn as sns
-
 
 matplotlib.rcParams['figure.figsize'] = (12, 6)
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
@@ -54,15 +55,38 @@ def run(output="output/"):
     gp.gp_gpflow.plot(X, Y, x, m3, 'MCMC-fitted model', f, output=os.path.join(output, "gpflow_mcmc.png"))
     print(m3.as_pandas_table())
 
-    plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(8, 4))
+    cmap = matplotlib.cm.hot
+    norm = matplotlib.colors.Normalize(vmin=0, vmax=traces.shape[1])
+    axs0 = plt.subplot2grid((1, 5), (0, 0), rowspan=1, colspan=1, fig=fig)
+
+    print("shape=", traces.shape)
+
+    j = 0
     for i, col in traces.iteritems():
-        plt.plot(col, label=col.name)
-    plt.legend(loc=0)
-    plt.xlabel('HMC iteration')
-    plt.ylabel('parameter value')
-    plt.title('HMC traces')
+        sns.kdeplot(col, ax=axs0, label=col.name, shade=True, vertical=True, color=cmap(norm(j)))
+        j += 1
+
+    axs1 = plt.subplot2grid((1, 5), (0, 1), rowspan=1, colspan=4, fig=fig)
+    j = 0
+    for i, col in traces.iteritems():
+        axs1.plot(col, label=col.name, color=cmap(norm(j)))
+        j += 1
+
+    axs0.get_legend().remove()
+
+    axs1.legend(loc=0)
+    axs1.set_xlabel('HMC iteration')
+    axs1.set_ylabel('parameter value')
+
+    axs0.set_ylim(axs1.get_ylim())
+
+    plt.suptitle('HMC traces')
+    plt.tight_layout()
     plt.savefig(os.path.join(output, "gpflow_mcmc_traces.png"))
     plt.show()
+
+    ###################################
 
     fig = plt.figure(figsize=(12, 4))
     axs0 = plt.subplot2grid((3, 3), (0, 0), rowspan=2, colspan=1, fig=fig)
