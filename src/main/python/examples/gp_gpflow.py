@@ -133,7 +133,12 @@ def run(output="output/"):
     plt.figure(figsize=(12, 6))
     f_samples = []
     nn = 1
-    for i, s in traces.iloc[::500].iterrows():
+
+    # print("traces.shape=", traces.shape)
+    # print("traces.iloc[::10].shape=", traces.iloc[::10].shape)
+    # print("traces.iloc[::20].shape=", traces.iloc[::20].shape)
+
+    for i, s in traces.iloc[::10].iterrows():
         f = m3.predict_f_samples(x, nn, initialize=False, feed_dict=m3.sample_feed_dict(s))
         f_samples.append(f)
         plt.plot(np.stack([x[:, 0]]*nn).T, f[:, :, 0].T, 'C0', lw=2, alpha=0.02)
