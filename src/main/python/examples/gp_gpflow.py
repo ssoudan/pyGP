@@ -80,6 +80,7 @@ def run(output="output/"):
     axs1.set_ylabel('parameter value')
 
     axs0.set_ylim(axs1.get_ylim())
+    axs0.set_xticks([])
 
     plt.suptitle('HMC traces')
     plt.tight_layout()
@@ -132,9 +133,21 @@ def run(output="output/"):
 
     # plot the function posterior
     plt.figure(figsize=(12, 6))
-    for i, s in traces.iloc[::20].iterrows():
-        f = m3.predict_f_samples(x, 1, initialize=False, feed_dict=m3.sample_feed_dict(s))
-        plt.plot(x, f[0, :, :], 'C0', lw=2, alpha=0.1)
+    f_samples = []
+    nn = 1
+    for i, s in traces.iloc[::100].iterrows():
+        f = m3.predict_f_samples(x, nn, initialize=False, feed_dict=m3.sample_feed_dict(s))
+        f_samples.append(f)
+        plt.plot(np.stack([x[:, 0]]*nn).T, f[:, :, 0].T, 'C0', lw=2, alpha=0.02)
+
+    f_samples = np.array(f_samples)
+
+    line, = plt.plot(x, np.mean(f_samples, axis=(0, 1)), lw=2)
+
+    plt.fill_between(x[:, 0],
+                     np.percentile(f_samples, 5, axis=(0, 1, 3)),
+                     np.percentile(f_samples, 95, axis=(0, 1, 3)),
+                     color=line.get_color(), alpha=0.1)
 
     plt.plot(X, Y, 'kx', mew=2)
     _ = plt.xlim(x.min(), x.max())
