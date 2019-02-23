@@ -60,8 +60,6 @@ def run(output="output/"):
     norm = matplotlib.colors.Normalize(vmin=0, vmax=traces.shape[1])
     axs0 = plt.subplot2grid((1, 5), (0, 0), rowspan=1, colspan=1, fig=fig)
 
-    print("shape=", traces.shape)
-
     j = 0
     for i, col in traces.iteritems():
         sns.kdeplot(col, ax=axs0, label=col.name, shade=True, vertical=True, color=cmap(norm(j)))
@@ -135,7 +133,7 @@ def run(output="output/"):
     plt.figure(figsize=(12, 6))
     f_samples = []
     nn = 1
-    for i, s in traces.iloc[::100].iterrows():
+    for i, s in traces.iloc[::500].iterrows():
         f = m3.predict_f_samples(x, nn, initialize=False, feed_dict=m3.sample_feed_dict(s))
         f_samples.append(f)
         plt.plot(np.stack([x[:, 0]]*nn).T, f[:, :, 0].T, 'C0', lw=2, alpha=0.02)
