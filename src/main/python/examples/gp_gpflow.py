@@ -28,6 +28,7 @@ def run(output="output/"):
     plt.plot(X, Y, 'kx', mew=2)
     plt.savefig(os.path.join(output, "gpflow_input_data.png"))
     plt.show()
+    plt.close()
 
     m1 = evalHandcrafted(X, Y)
     gp.gp_gpflow.plot(X, Y, x, m1, 'handcrafted GP model', f,
@@ -49,6 +50,7 @@ def run(output="output/"):
     plt.title('Posterior samples - MLE')
     plt.savefig(os.path.join(output, "gpflow_mle_posterior_samples.png"))
     plt.show()
+    plt.close()
     m2.clear()
 
     traces, m3 = gp.gp_gpflow.evalMCMC(X, Y)
@@ -84,6 +86,7 @@ def run(output="output/"):
     plt.tight_layout()
     plt.savefig(os.path.join(output, "gpflow_mcmc_traces.png"))
     plt.show()
+    plt.close()
 
     ###################################
 
@@ -128,6 +131,7 @@ def run(output="output/"):
     plt.tight_layout()
     plt.savefig(os.path.join(output, "gpflow_mcmc_joint_distribution.png"))
     plt.show()
+    plt.close()
 
     # plot the function posterior
     plt.figure(figsize=(12, 6))
@@ -158,4 +162,5 @@ def run(output="output/"):
     plt.title('Posterior samples - MCMC')
     plt.savefig(os.path.join(output, "gpflow_mcmc_posterior_samples.png"))
     plt.show()
+    plt.close()
     m3.clear()

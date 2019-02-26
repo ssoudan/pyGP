@@ -7,6 +7,7 @@ import warnings
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+n_cpus = 6
 
 #
 # see https://github.com/tensorflow/probability/blob/master/tensorflow_probability/
@@ -52,7 +53,11 @@ def evalMLE(X, Y, x):
 
     # Now execute the above ops in a Session, first training the model
     # parameters, then drawing and plotting posterior samples.
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(
+            device_count={"CPU": n_cpus},
+            inter_op_parallelism_threads=n_cpus,
+            intra_op_parallelism_threads=2,
+    )) as sess:
         sess.run(tf.global_variables_initializer())
 
         for i in range(1000):
@@ -135,7 +140,11 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
         observation_noise_variance=observation_noise_variances[..., np.newaxis])
     samples = gprm.sample()
 
-    with tf.Session() as sess:
+    with tf.Session(config=tf.ConfigProto(
+            device_count={"CPU": n_cpus},
+            inter_op_parallelism_threads=n_cpus,
+            intra_op_parallelism_threads=2,
+    )) as sess:
         kernel_results_, samples_ = sess.run([kernel_results, samples])
 
         print("Acceptance rate: {}".format(
@@ -146,14 +155,15 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
 
 def plot(X, Y, x, y, f=None, title=None, output=None):
     # Plot posterior samples and their mean, target function, and observations.
-    num_results = y.shape[0]
-
     plt.figure()
-    plt.plot(np.stack([x[:, 0]] * num_results).T,
-             y.T,
-             c='r',
-             alpha=.1)
-    plt.plot(x[:, 0], np.mean(y, axis=0), c='k')
+
+    if y is not None:
+        num_results = y.shape[0]
+        plt.plot(np.stack([x[:, 0]] * num_results).T,
+                 y.T,
+                 c='r',
+                 alpha=.1)
+        plt.plot(x[:, 0], np.mean(y, axis=0), c='k')
     if f is not None:
         plt.plot(x[:, 0], f(x))
     plt.scatter(X[:, 0], Y)
@@ -162,3 +172,4 @@ def plot(X, Y, x, y, f=None, title=None, output=None):
     if output is not None:
         plt.savefig(output)
     plt.show()
+    plt.close()

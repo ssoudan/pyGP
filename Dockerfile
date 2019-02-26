@@ -20,6 +20,10 @@ RUN ./test.sh
 VOLUME /app/output
 VOLUME /app/data
 
+ARG cmd="run_gpflow.py"
+
+RUN mv ${cmd} run.py
+
 ENTRYPOINT [ "python3" ]
 
-CMD [ "run_gpflow.py" ]
+CMD [ "run.py" ]

@@ -63,3 +63,4 @@ def plot(X, Y, x, y, sigma, DY=None, f=None, output=None):
     if output is not None:
         plt.savefig(output)
     plt.show()
+    plt.close()
