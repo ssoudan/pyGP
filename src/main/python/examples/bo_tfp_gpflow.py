@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 import matplotlib.pylab as plt
 import matplotlib.lines as mlines
+import seaborn as sns
 from .data.gen import make_data
 from opt.bo import Optimizer
 from gp.gp_tfp import evalMLE, evalHMC, plot
@@ -36,7 +37,12 @@ def eval(w, m, output, X, Y, x, f, steps=10):
         print("x_star=", x_star)
 
         X_, Y_ = opt.get_points()
-        plot(X_, Y_, x, y, f=f, acquisition=acquisition, next_X=x_star, title="%s %s" % (w, m), output=os.path.join(output, "opt_%s_%s_%d.png" % (w, m, i)))
+        plot(X_, Y_, x, y,
+             f=f,
+             acquisition=acquisition,
+             next_X=x_star,
+             title="%s %s" % (w, m),
+             output=os.path.join(output, "opt_%s_%s_%d.png" % (w, m, i)))
 
         y_star = f(x_star)
         print("y_star=", y_star)
@@ -47,6 +53,45 @@ def eval(w, m, output, X, Y, x, f, steps=10):
     print("x_star=", x_star)
 
     return best
+
+
+def load_and_plot(output="output/opt"):
+
+    f = os.path.join(output, 'opt_gpflow_tfp_hmc_v_mle.npz')
+    d = np.load(f)
+
+    y_stars_gpflow_mles_ = d[d.files[0]]
+    y_stars_gpflow_hmcs_ = d[d.files[1]]
+    y_stars_tfp_mles_ = d[d.files[2]]
+    y_stars_tfp_hmcs_ = d[d.files[3]]
+
+    plt.figure()
+    with sns.axes_style("white"):
+        a = y_stars_gpflow_mles_
+        plt.plot(np.array([np.arange(a.shape[1])] * a.shape[0]).T, a.T, color="k", alpha=0.8)
+        plt.fill_between(np.arange(a.shape[1]), np.min(a, axis=0), np.max(a, axis=0), color="k", alpha=0.1)
+
+        a = y_stars_gpflow_hmcs_
+        plt.plot(np.array([np.arange(a.shape[1])] * a.shape[0]).T, a.T, color="r", alpha=0.8)
+        plt.fill_between(np.arange(a.shape[1]), np.min(a, axis=0), np.max(a, axis=0), color="r", alpha=0.1)
+
+        a = y_stars_tfp_mles_
+        plt.plot(np.array([np.arange(a.shape[1])] * a.shape[0]).T, a.T, color="c", alpha=0.8)
+        plt.fill_between(np.arange(a.shape[1]), np.min(a, axis=0), np.max(a, axis=0), color="c", alpha=0.1)
+
+        a = y_stars_tfp_hmcs_
+        plt.plot(np.array([np.arange(a.shape[1])] * a.shape[0]).T, a.T, color="m", alpha=0.8)
+        plt.fill_between(np.arange(a.shape[1]), np.min(a, axis=0), np.max(a, axis=0), color="m", alpha=0.1)
+
+    l1 = mlines.Line2D([], [], color='k', label='gpflow mle')
+    l2 = mlines.Line2D([], [], color='r', label='gpflow mcmc')
+    l3 = mlines.Line2D([], [], color='c', label='tfp mle')
+    l4 = mlines.Line2D([], [], color='m', label='tfp mcmc')
+
+    plt.legend(handles=[l1, l2, l3, l4])
+
+    plt.show()
+    plt.close()
 
 
 def run(output="output/opt/"):

@@ -168,16 +168,16 @@ def plot(X, Y, x, y, acquisition=None, next_X=None, f=None, title=None, output=N
     if y is not None:
         num_results = y.shape[0]
         axs0.plot(np.stack([x[:, 0]] * num_results).T,
-                 y.T,
-                 c='r',
-                 alpha=.1)
+                  y.T,
+                  c='r',
+                  alpha=.1)
         mean = np.mean(y, axis=0)
         var = np.var(y, axis=0)
         axs0.plot(x[:, 0], mean, c='k')
         axs0.fill_between(x[:, 0],
-                         mean - 2 * np.sqrt(var),
-                         mean + 2 * np.sqrt(var),
-                         color='C0', alpha=0.2)
+                          mean - 2 * np.sqrt(var),
+                          mean + 2 * np.sqrt(var),
+                          color='C0', alpha=0.2)
     if acquisition is not None:
         axs1 = plt.subplot2grid((4, 1), (3, 0), rowspan=1, colspan=1, fig=fig)
         axs1.plot(x, acquisition)
