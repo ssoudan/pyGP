@@ -4,6 +4,7 @@ np.random.seed(1)
 
 noise = 0.25
 
+
 def make_data(points=25):
     # f = lambda x: x * np.sin(x)
     def f(x_):
