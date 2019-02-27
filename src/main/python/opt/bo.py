@@ -41,7 +41,7 @@ class Optimizer(object):
         # print("x_star_idx=", x_star_idx)
         x_star = x[x_star_idx]
 
-        return x_star, y
+        return x_star, y, ei
 
     def get_points(self):
         X = []

@@ -157,29 +157,52 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     return x, samples_
 
 
-def plot(X, Y, x, y, f=None, title=None, output=None):
+def plot(X, Y, x, y, acquisition=None, next_X=None, f=None, title=None, output=None):
     # Plot posterior samples and their mean, target function, and observations.
-    plt.figure()
+    fig = plt.figure()
+    if acquisition is not None:
+        axs0 = plt.subplot2grid((4, 1), (0, 0), rowspan=3, colspan=1, fig=fig)
+    else:
+        axs0 = plt.subplot2grid((4, 1), (0, 0), rowspan=4, colspan=1, fig=fig)
 
     if y is not None:
         num_results = y.shape[0]
-        plt.plot(np.stack([x[:, 0]] * num_results).T,
+        axs0.plot(np.stack([x[:, 0]] * num_results).T,
                  y.T,
                  c='r',
                  alpha=.1)
         mean = np.mean(y, axis=0)
         var = np.var(y, axis=0)
-        plt.plot(x[:, 0], mean, c='k')
-        plt.fill_between(x[:, 0],
+        axs0.plot(x[:, 0], mean, c='k')
+        axs0.fill_between(x[:, 0],
                          mean - 2 * np.sqrt(var),
                          mean + 2 * np.sqrt(var),
                          color='C0', alpha=0.2)
+    if acquisition is not None:
+        axs1 = plt.subplot2grid((4, 1), (3, 0), rowspan=1, colspan=1, fig=fig)
+        axs1.plot(x, acquisition)
+        axs1.set_yticks([])
+        axs1.set_xticks([])
+        axs1.set_xlim(axs0.get_xlim())
+
+        if next_X is not None:
+            axs1.axvline(x=next_X, color='k', linestyle='--')
+
+    if next_X is not None:
+        axs0.axvline(x=next_X, color='k', linestyle='--')
+
     if f is not None:
-        plt.plot(x[:, 0], f(x))
-    plt.scatter(X[:, 0], Y)
+        axs0.plot(x[:, 0], f(x))
+
+    axs0.scatter(X[:, 0], Y)
+
     if title is not None:
-        plt.title(title)
+        plt.suptitle(title)
+
     if output is not None:
         plt.savefig(output)
+
+    plt.tight_layout()
+
     plt.show()
     plt.close()

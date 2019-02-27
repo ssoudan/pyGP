@@ -32,11 +32,11 @@ def eval(w, m, output, X, Y, x, f, steps=10):
     best = []
 
     for i in range(steps):
-        x_star, y = opt.find_next_candidate()
+        x_star, y, acquisition = opt.find_next_candidate()
         print("x_star=", x_star)
 
         X_, Y_ = opt.get_points()
-        plot(X_, Y_, x, y, f, title="%s %s" % (w, m), output=os.path.join(output, "opt_%s_%s_%d.png" % (w, m, i)))
+        plot(X_, Y_, x, y, f=f, acquisition=acquisition, next_X=x_star, title="%s %s" % (w, m), output=os.path.join(output, "opt_%s_%s_%d.png" % (w, m, i)))
 
         y_star = f(x_star)
         print("y_star=", y_star)
@@ -106,5 +106,7 @@ def run(output="output/opt/"):
     y_stars_tfp_mles_ = np.array(y_stars_tfp_mles)
     y_stars_tfp_hmcs_ = np.array(y_stars_tfp_mcmcs)
     np.savez(os.path.join(output, "opt_gpflow_tfp_hmc_v_mle.npz"),
-             y_stars_gpflow_mles_, y_stars_gpflow_hmcs_,
-             y_stars_tfp_mles_, y_stars_tfp_hmcs_)
+             y_stars_gpflow_mles_=y_stars_gpflow_mles_,
+             y_stars_gpflow_hmcs_=y_stars_gpflow_hmcs_,
+             y_stars_tfp_mles_=y_stars_tfp_mles_,
+             y_stars_tfp_hmcs_=y_stars_tfp_hmcs_)
