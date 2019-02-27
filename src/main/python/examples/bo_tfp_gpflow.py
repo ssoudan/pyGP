@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
-def eval(w, m, output, X, Y, x, f, steps=10):
+def eval(w, m, output, X, Y, x, f, f_noisy, steps=10):
     if m is "mle":
         if w is "tfp":
             opt = Optimizer(evalMLE)
@@ -44,7 +44,7 @@ def eval(w, m, output, X, Y, x, f, steps=10):
              title="%s %s" % (w, m),
              output=os.path.join(output, "opt_%s_%s_%d.png" % (w, m, i)))
 
-        y_star = f(x_star)
+        y_star = f_noisy(x_star)
         print("y_star=", y_star)
         opt.add_point(float(x_star), float(y_star))
 
@@ -108,13 +108,13 @@ def run(output="output/opt/"):
         os.makedirs(output_rep, exist_ok=True)
 
         print("========== %d =========" % i)
-        X, Y, x, f = make_data(4)
+        X, Y, x, f, f_noisy = make_data(4)
 
-        y_stars_gpflow_mle = eval("gpflow", "mle", output_rep, X, Y, x, f, steps=steps)
-        y_stars_gpflow_mcmc = eval("gpflow", "mcmc", output_rep, X, Y, x, f, steps=steps)
+        y_stars_gpflow_mle = eval("gpflow", "mle", output_rep, X, Y, x, f, f_noisy, steps=steps)
+        y_stars_gpflow_mcmc = eval("gpflow", "mcmc", output_rep, X, Y, x, f, f_noisy, steps=steps)
 
-        y_stars_tfp_mle = eval("tfp", "mle", output_rep, X, Y, x, f, steps=steps)
-        y_stars_tfp_mcmc = eval("tfp", "mcmc", output_rep, X, Y, x, f, steps=steps)
+        y_stars_tfp_mle = eval("tfp", "mle", output_rep, X, Y, x, f, f_noisy, steps=steps)
+        y_stars_tfp_mcmc = eval("tfp", "mcmc", output_rep, X, Y, x, f, f_noisy, steps=steps)
 
         y_stars_gpflow_mles.append(y_stars_gpflow_mle)
         y_stars_gpflow_mcmcs.append(y_stars_gpflow_mcmc)

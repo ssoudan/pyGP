@@ -23,6 +23,7 @@ class Optimizer(object):
             raise Exception("no points")
 
         x = np.linspace(-1., 1., 200)[..., np.newaxis]
+        # TODO(ssoudan) support more than 1D
 
         X_, Y_ = self.get_points()
         _, y = self.eval(X_, Y_, x)

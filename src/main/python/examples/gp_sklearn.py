@@ -6,7 +6,7 @@ import gp.gp_sklearn
 
 
 def run(output="output/"):
-    X, Y, x, f = make_data()
+    X, Y, x, f, _ = make_data()
 
     y, sigma = gp.gp_sklearn.evalMLENoiseless(X, Y, x)
     gp.gp_sklearn.plot(X, Y, x, y, sigma, DY=None, f=f, output=os.path.join(output, "sklearn_mle_noiseless.png"))

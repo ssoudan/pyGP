@@ -51,7 +51,7 @@ def evalGPRSample():  # type: () -> None
 def run(output="output/"):
     evalGPRSample()
 
-    X, Y, x, f = make_data()
+    X, Y, x, f, _ = make_data()
 
     _, y = gp.gp_tfp.evalMLE(X, Y, x)
 

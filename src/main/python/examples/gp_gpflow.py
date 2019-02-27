@@ -22,7 +22,7 @@ def evalHandcrafted(X, Y):
 
 
 def run(output="output/"):
-    X, Y, x, f = make_data()
+    X, Y, x, f, _ = make_data()
     Y = np.atleast_2d(Y).T
 
     plt.plot(X, Y, 'kx', mew=2)
