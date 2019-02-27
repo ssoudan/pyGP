@@ -16,13 +16,33 @@ def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
         k = gpflow.kernels.Matern52(1, lengthscales=0.3)
         meanf = gpflow.mean_functions.Zero()
         m = gpflow.models.GPR(X, Y, k, meanf)
-        m.likelihood.variance = 0.01
+        m.clear()
+
+        m.kern.lengthscales.prior = gpflow.priors.Beta(1., 3.)
+        m.kern.variance.prior = gpflow.priors.Beta(1., 3.)
+        m.likelihood.variance.prior = gpflow.priors.Beta(1., 3.)
 
     m.compile()
     print(m.as_pandas_table())
 
     gpflow.train.ScipyOptimizer().minimize(m)
     return None, m
+
+
+def evalMLESamples(X, Y, x):
+    gpflow.reset_default_graph_and_session()
+
+    Y = np.atleast_2d(Y).T
+    _, m = evalMLE(X, Y)
+
+    num_samples = 10
+    ff = m.predict_f_samples(x, num_samples, initialize=False)
+
+    # print("ff.shape=", ff.shape)
+
+    m.clear()
+
+    return x, ff[:, :, 0]
 
 
 def evalMCMC(X, Y):    # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
@@ -42,8 +62,32 @@ def evalMCMC(X, Y):    # type: (Any, {shape}) -> Tuple[DataFrame, GPR]
     print(m.as_pandas_table())
 
     sampler = gpflow.train.HMC()
-    traces = sampler.sample(m, num_samples=12000, burn=1000, epsilon=0.05, lmin=1, lmax=3, logprobs=False)
+    traces = sampler.sample(m, num_samples=2000, burn=1000, epsilon=0.05, lmin=1, lmax=3, logprobs=False)
     return traces, m
+
+
+def evalMCMCSamples(X, Y, x):
+    gpflow.reset_default_graph_and_session()
+
+    Y = np.atleast_2d(Y).T
+    traces, m = evalMCMC(X, Y)
+
+    f_samples = []
+    nn = 1
+
+    for i, s in traces.iloc[::10].iterrows():
+        f = m.predict_f_samples(x, nn, initialize=False, feed_dict=m.sample_feed_dict(s))
+        f_samples.append(f)
+
+    f_samples = np.array(f_samples)
+
+    # print("f_samples.shape=", f_samples.shape)
+    # print("x.shape=", x.shape)
+    out = f_samples[:, 0, :, 0].reshape(f_samples.shape[0], f_samples.shape[2])
+    # print("out.shape=", out.shape)
+
+    m.clear()
+    return x, out
 
 
 def plot(X, Y, x, m, t, f=None, output=None):

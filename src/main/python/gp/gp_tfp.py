@@ -20,6 +20,8 @@ psd_kernels = tfp.positive_semidefinite_kernels
 def evalMLE(X, Y, x):
     # type: (Any, Any, Any) -> Tuple[Any, Union[Union[List[Optional[Any]], Tuple[Optional[Any], ...], None], Any]]
 
+    tf.reset_default_graph()
+
     # Define a kernel with trainable parameters. Note we transform the trainable
     # variables to apply a positivity constraint.
     amplitude = tf.exp(tf.Variable(np.float64(0)), name='amplitude')
@@ -73,6 +75,8 @@ def evalMLE(X, Y, x):
 
 def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
 
+    tf.reset_default_graph()
+
     def joint_log_prob(index_points, observations, amplitude, length_scale, noise_variance):
 
         # Hyperparameter Distributions.
@@ -111,20 +115,20 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
             X, Y, amplitude, length_scale,
             noise_variance)
 
-    num_results = 10
+    num_results = 100
     [
         amplitudes,
         length_scales,
         observation_noise_variances
     ], kernel_results = tfp.mcmc.sample_chain(
         num_results=num_results,
-        num_burnin_steps=500,
+        num_burnin_steps=1000,
         num_steps_between_results=3,
         current_state=initial_chain_states,
         kernel=tfp.mcmc.TransformedTransitionKernel(
             inner_kernel=tfp.mcmc.HamiltonianMonteCarlo(
                 target_log_prob_fn=unnormalized_log_posterior,
-                step_size=[np.float64(.15)],
+                step_size=[np.float64(.05)],
                 num_leapfrog_steps=3),
             bijector=unconstraining_bijectors))
 
@@ -163,7 +167,13 @@ def plot(X, Y, x, y, f=None, title=None, output=None):
                  y.T,
                  c='r',
                  alpha=.1)
-        plt.plot(x[:, 0], np.mean(y, axis=0), c='k')
+        mean = np.mean(y, axis=0)
+        var = np.var(y, axis=0)
+        plt.plot(x[:, 0], mean, c='k')
+        plt.fill_between(x[:, 0],
+                         mean - 2 * np.sqrt(var),
+                         mean + 2 * np.sqrt(var),
+                         color='C0', alpha=0.2)
     if f is not None:
         plt.plot(x[:, 0], f(x))
     plt.scatter(X[:, 0], Y)
