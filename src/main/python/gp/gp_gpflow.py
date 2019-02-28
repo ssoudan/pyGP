@@ -26,7 +26,7 @@ def evalMLE(X, Y):  # type: (Any, {shape}) -> Tuple[None, GPR]
     print(m.as_pandas_table())
 
     # gpflow.train.scipy_optimizer.ScipyOptimizer().minimize(m)
-    gpflow.train.natgrad_optimizer.NatGradOptimizer().minimize(m)
+    gpflow.train.AdamOptimizer(learning_rate=.05, beta1=.5, beta2=.99).minimize(m)
     return None, m
 
 
