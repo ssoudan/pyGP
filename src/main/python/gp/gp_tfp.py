@@ -26,7 +26,7 @@ def evalMLE(X, Y, x):
     # variables to apply a positivity constraint.
     amplitude = tf.exp(tf.Variable(np.float64(0)), name='amplitude')
     length_scale = tf.exp(tf.Variable(np.float64(0)), name='length_scale')
-    kernel = psd_kernels.ExponentiatedQuadratic(amplitude, length_scale)
+    kernel = psd_kernels.MaternFiveHalves(amplitude, length_scale)
 
     observation_noise_variance = tf.exp(
         tf.Variable(np.float64(-5)), name='observation_noise_variance')
@@ -58,7 +58,7 @@ def evalMLE(X, Y, x):
     with tf.Session(config=tf.ConfigProto(
             device_count={"CPU": n_cpus},
             inter_op_parallelism_threads=n_cpus,
-            intra_op_parallelism_threads=2,
+            intra_op_parallelism_threads=n_cpus,
     )) as sess:
         sess.run(tf.global_variables_initializer())
 
@@ -147,7 +147,7 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     with tf.Session(config=tf.ConfigProto(
             device_count={"CPU": n_cpus},
             inter_op_parallelism_threads=n_cpus,
-            intra_op_parallelism_threads=2,
+            intra_op_parallelism_threads=n_cpus,
     )) as sess:
         kernel_results_, samples_ = sess.run([kernel_results, samples])
 

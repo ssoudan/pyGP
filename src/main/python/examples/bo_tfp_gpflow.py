@@ -101,7 +101,7 @@ def run(output="output/opt/"):
     y_stars_tfp_mcmcs = []
 
     steps = 20
-    rep = 5
+    rep = 10
 
     for i in range(rep):
         output_rep = os.path.join(output, "rep%d" % i)
