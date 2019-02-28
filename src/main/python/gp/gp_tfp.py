@@ -80,9 +80,9 @@ def evalHMC(X, Y, x):  # type: (Any, Any, Any) -> Tuple[Any, Any]
     def joint_log_prob(index_points, observations, amplitude, length_scale, noise_variance):
 
         # Hyperparameter Distributions.
-        rv_amplitude = tfd.LogNormal(np.float64(0.), np.float64(1))
-        rv_length_scale = tfd.LogNormal(np.float64(0.), np.float64(1))
-        rv_noise_variance = tfd.LogNormal(np.float64(0.), np.float64(1))
+        rv_amplitude = tfd.Beta(np.float64(1.), np.float64(3.))
+        rv_length_scale = tfd.Beta(np.float64(1.), np.float64(3.))
+        rv_noise_variance = tfd.Beta(np.float64(1.), np.float64(3.))
 
         gp = tfd.GaussianProcess(
             kernel=psd_kernels.MaternFiveHalves(amplitude, length_scale),
