@@ -93,6 +93,7 @@ def evalMCMCSamples(X, Y, x):
 
 def plot(X, Y, x, m, t, f=None, output=None):
 
+    # from https://gpflow.readthedocs.io/en/stable/notebooks/regression.html#Prediction:
     # GPflow models have several prediction methods:
     # * m.predict_f returns the mean and variance of the latent function (f) at the points Xnew.
     # * m.predict_f_full_cov additionally returns the full covariance matrix of the prediction.

@@ -55,7 +55,7 @@ def run(output="output/"):
 
     _, y = gp.gp_tfp.evalMLE(X, Y, x)
 
-    gp.gp_tfp.plot(X, Y, x, y, f, title="MLE", output=os.path.join(output, "tfp_mle.png"))
+    gp.gp_tfp.plot(X, Y, x, y, None, None, f, title="MLE", output=os.path.join(output, "tfp_mle.png"))
 
     _, y = gp.gp_tfp.evalHMC(X, Y, x)
-    gp.gp_tfp.plot(X, Y, x, y, f, title="HMC", output=os.path.join(output, "tfp_hmc.png"))
+    gp.gp_tfp.plot(X, Y, x, y, None, None, f, title="HMC", output=os.path.join(output, "tfp_hmc.png"))

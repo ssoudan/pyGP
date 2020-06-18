@@ -170,7 +170,7 @@ def plot(X, Y, x, y, acquisition=None, next_X=None, f=None, title=None, output=N
         axs0.plot(np.stack([x[:, 0]] * num_results).T,
                   y.T,
                   c='r',
-                  alpha=.1)
+                  alpha=.01)
         mean = np.mean(y, axis=0)
         var = np.var(y, axis=0)
         axs0.plot(x[:, 0], mean, c='k')
@@ -178,6 +178,7 @@ def plot(X, Y, x, y, acquisition=None, next_X=None, f=None, title=None, output=N
                           mean - 2 * np.sqrt(var),
                           mean + 2 * np.sqrt(var),
                           color='C0', alpha=0.2)
+
     if acquisition is not None:
         axs1 = plt.subplot2grid((4, 1), (3, 0), rowspan=1, colspan=1, fig=fig)
         axs1.plot(x, acquisition)
@@ -194,7 +195,7 @@ def plot(X, Y, x, y, acquisition=None, next_X=None, f=None, title=None, output=N
     if f is not None:
         axs0.plot(x[:, 0], f(x))
 
-    axs0.scatter(X[:, 0], Y)
+    axs0.scatter(X[:, 0], Y, zorder=1200)
 
     if title is not None:
         plt.suptitle(title)
