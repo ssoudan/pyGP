@@ -1,6 +1,6 @@
 FROM tensorflow/tensorflow:1.12.0-py3
 
-MAINTAINER Sebastien Soudan "sebastien.soudan@gmail.com"
+LABEL maintainer="sebastien.soudan@gmail.com"
 
 COPY ./requirements.txt /app/requirements.txt
 
